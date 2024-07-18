@@ -1,1 +1,43 @@
-<p>login works!</p>
+<div class="flex flex-col gap-2 p-6 bg-white rounded-lg shadow">
+  <h5 class="text-xl mb-2 font-bold text-gray-900">Login Here</h5>
+  <form action="" [formGroup]="loginForm" (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
+    <div class="form-group mb-3">
+      <label for="email">Email Address</label>
+      <input
+        id="email"
+        type="text"
+        placeholder="Email Address"
+        class="form-control"
+        formControlName="email"
+        [ngClass]="{'invalid': loginForm.get('email')?.invalid && loginForm.get('email')?.touched, 'valid': loginForm.get('email')?.valid}"
+      />
+      <div *ngIf="loginForm.get('email')?.touched">
+        <span *ngIf="loginForm.get('email')?.hasError('required')" class="form-error">Email Address is required.</span>
+      </div>
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          class="form-control"
+          formControlName="password"
+          [ngClass]="{'invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched, 'valid': loginForm.get('password')?.valid}"
+          (mouseenter)="showTooltip = true"
+          (mouseleave)="showTooltip = false"
+        />
+        <span *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-icon">&#10005;</span>
+        <span *ngIf="loginForm.get('password')?.valid && loginForm.get('password')?.touched" class="success-icon">&#10003;</span>
+      </div>
+      <div *ngIf="loginForm.get('password')?.touched">
+        <span *ngIf="loginForm.get('password')?.hasError('required')" class="form-error">Password is required.</span>
+        <span *ngIf="loginForm.get('password')?.hasError('pattern')" class="form-error">Password must meet complexity requirements.</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+  </form>
+</div>

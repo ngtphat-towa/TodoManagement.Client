@@ -1,0 +1,38 @@
+.input-wrapper {
+  position: relative;
+
+  .form-control {
+    padding-right: 2rem; // Add padding to make space for the icon
+  }
+
+  .error-icon,
+  .success-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    pointer-events: none;
+  }
+
+  .error-icon {
+    color: red;
+  }
+
+  .success-icon {
+    color: green;
+  }
+}
+
+.form-error {
+  color: red;
+  font-size: 0.875rem;
+}
+
+.invalid {
+  border-color: red;
+}
+
+.valid {
+  border-color: green;
+}
