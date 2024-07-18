@@ -4,12 +4,12 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL, API_ROUTES } from '../contants/api.constants';
 import {
   AuthenticationRequest,
+  ApiResponse,
+  AuthenticationResponse,
   RegisterRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
-} from '../contracts/auth/auth.request';
-import { AuthenticationResponse } from '../contracts/auth/auth.response';
-import { ApiResponse } from '../contracts/wrapper/response.model';
+} from '../contracts';
 
 @Injectable({
   providedIn: 'root',
