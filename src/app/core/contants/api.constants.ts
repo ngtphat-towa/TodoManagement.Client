@@ -1,9 +1,7 @@
 export const API_BASE_URL = 'https://localhost:7243';
 
 
-export const constants = {
-  CURRENT_TOKEN: 'CURRENT_TOKEN',
-};
+
 
 export const API_ROUTES = {
   // Todo

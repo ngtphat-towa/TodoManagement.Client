@@ -9,6 +9,7 @@ import {
   RegisterRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  RefreshTokenRequest,
 } from '../contracts';
 
 @Injectable({
@@ -62,6 +63,32 @@ export class AccountService {
     return this.http.post<ApiResponse<string>>(
       `${this.baseUrl}${API_ROUTES.RESET_PASSWORD}`,
       request
+    );
+  }
+  logout(): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>(
+      `${this.baseUrl}${API_ROUTES.LOGOUT}`,
+      {}
+    );
+  }
+
+  refreshToken(token: string): Observable<ApiResponse<AuthenticationResponse>> {
+    const requestPayload: RefreshTokenRequest = { token };
+    return this.http.post<ApiResponse<AuthenticationResponse>>(
+      `${this.baseUrl}${API_ROUTES.REFRESH_TOKEN}`,
+      requestPayload
+    );
+  }
+
+  getUserRoles(userId: string): Observable<ApiResponse<string[]>> {
+    return this.http.get<ApiResponse<string[]>>(
+      `${this.baseUrl}${API_ROUTES.ROLES}/${userId}`
+    );
+  }
+
+  getUserPermissions(userId: string): Observable<ApiResponse<string[]>> {
+    return this.http.get<ApiResponse<string[]>>(
+      `${this.baseUrl}${API_ROUTES.PERMISSIONS}/${userId}`
     );
   }
 }
