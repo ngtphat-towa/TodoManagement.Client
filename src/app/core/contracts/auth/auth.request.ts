@@ -22,3 +22,7 @@ export interface ResetPasswordRequest {
   password: string;
   confirmPassword: string;
 }
+
+export interface RefreshTokenRequest {
+  token: string;
+}
