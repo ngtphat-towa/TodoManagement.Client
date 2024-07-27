@@ -17,6 +17,9 @@ export const routes: Routes = [
     path: '',
     component: MasterComponent,
     canActivate: [authGuard],
-    children: [{ path: 'todo', component: TodoComponent }],
+    children: [
+      { path: 'todo', component: TodoComponent },
+      { path: '**', redirectTo: '/todo' },
+    ],
   },
 ];

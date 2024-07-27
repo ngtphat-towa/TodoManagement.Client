@@ -1,20 +1,22 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { TokenService } from '../services';
-import { of } from 'rxjs';
+import { TokenService } from '../services/token.service';
+import { map } from 'rxjs';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = () => {
   const tokenService = inject(TokenService);
   const router = inject(Router);
 
-  const token = tokenService.getAccessToken();
-
-  if (token) {
-    // Token exists, user is authenticated
-    return of(true);
-  } else {
-    // Token does not exist, user is not authenticated
-    router.navigate(['/login']);
-    return of(false);
-  }
+  return tokenService.authState$.pipe(
+    map((isLoggedIn) => {
+      if (isLoggedIn) {
+        console.log('AuthGuard: Token exists, user is authenticated');
+        return true;
+      } else {
+        console.log('AuthGuard: Token does not exist, redirecting to login');
+        router.navigate(['/']);
+        return false;
+      }
+    })
+  );
 };

@@ -1,124 +1,120 @@
-import { Injectable } from '@angular/core';
+import { inject } from '@angular/core';
 import {
-  HttpInterceptor,
+  HttpInterceptorFn,
   HttpRequest,
-  HttpHandler,
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { TokenService } from '../services/token.service';
 import { AccountService } from '../services/account.service';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  constructor(
-    private tokenService: TokenService,
-    private accountService: AccountService,
-    private router: Router
-  ) {}
+export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
+  const tokenService = inject(TokenService);
+  const accountService = inject(AccountService);
+  const router = inject(Router);
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    // Add authorization header to the request if access token is available
-    const authReq = this.addAuthHeader(req);
+  // Add authorization header to the request if access token is available
+  const authReq = addAuthHeader(req, tokenService);
 
-    return next.handle(authReq).pipe(
-      catchError((error: HttpErrorResponse) => {
-        // Handle 401 Unauthorized errors
-        if (error.status === 401) {
-          return this.handleUnauthorizedError(req, next);
-        } else {
-          // For other HTTP errors, rethrow them
-          return throwError(() => new Error(`HTTP Error: ${error.message}`));
-        }
-      })
-    );
-  }
-
-  /**
-   * Adds the Authorization header to the request if the access token is present.
-   */
-  private addAuthHeader(req: HttpRequest<any>): HttpRequest<any> {
-    const token = this.tokenService.getAccessToken();
-    if (token) {
-      return req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    }
-    return req;
-  }
-
-  /**
-   * Handles a 401 Unauthorized error by attempting to refresh the access token.
-   */
-  private handleUnauthorizedError(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    return this.refreshToken().pipe(
-      switchMap(() => {
-        // Retry the original request with the new access token
-        const newToken = this.tokenService.getAccessToken();
-        const retryReq = req.clone({
-          setHeaders: {
-            Authorization: `Bearer ${newToken || ''}`,
-          },
-        });
-        return next.handle(retryReq);
-      }),
-      catchError(() => {
-        // Handle cases where refresh token is also expired or invalid
-        this.handleAuthError();
-        return throwError(
-          () => new Error('Token refresh failed. Redirecting to login.')
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        return handleUnauthorizedError(
+          req,
+          next,
+          tokenService,
+          accountService,
+          router
         );
-      })
-    );
+      } else {
+        return throwError(() => new Error(`HTTP Error: ${error.message}`));
+      }
+    })
+  );
+};
+
+function addAuthHeader(
+  req: HttpRequest<any>,
+  tokenService: TokenService
+): HttpRequest<any> {
+  const token = tokenService.getAccessToken();
+  if (token) {
+    return req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+  return req;
+}
+
+function handleUnauthorizedError(
+  req: HttpRequest<any>,
+  next: (req: HttpRequest<any>) => Observable<HttpEvent<any>>,
+  tokenService: TokenService,
+  accountService: AccountService,
+  router: Router
+): Observable<HttpEvent<any>> {
+  return tokenService.authState$.pipe(
+    switchMap((isLoggedIn) => {
+      if (isLoggedIn) {
+        return refreshToken(tokenService, accountService, router).pipe(
+          switchMap(() => {
+            const newToken = tokenService.getAccessToken();
+            const retryReq = req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${newToken || ''}`,
+              },
+            });
+            return next(retryReq);
+          }),
+          catchError(() => {
+            handleAuthError(tokenService, router);
+            return throwError(
+              () => new Error('Token refresh failed. Redirecting to login.')
+            );
+          })
+        );
+      } else {
+        handleAuthError(tokenService, router);
+        return throwError(() => new Error('User is not logged in.'));
+      }
+    })
+  );
+}
+
+function refreshToken(
+  tokenService: TokenService,
+  accountService: AccountService,
+  router: Router
+): Observable<any> {
+  const refreshToken = tokenService.getRefreshToken();
+  if (!refreshToken) {
+    handleAuthError(tokenService, router);
+    return throwError(() => new Error('No refresh token available.'));
   }
 
-  /**
-   * Refreshes the access token using the refresh token.
-   */
-  private refreshToken(): Observable<any> {
-    const refreshToken = this.tokenService.getRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token available.'));
-    }
+  return accountService.refreshToken(refreshToken).pipe(
+    tap((response) => {
+      if (response.succeeded) {
+        tokenService.setAccessToken(response.data!.jwToken);
+        tokenService.setRefreshToken(response.data!.refreshToken);
+      } else {
+        throwError(() => new Error(response.message));
+      }
+    }),
+    catchError((error) => {
+      handleAuthError(tokenService, router);
+      return throwError(() => new Error('Refresh token expired or invalid.'));
+    })
+  );
+}
 
-    return this.accountService.refreshToken(refreshToken).pipe(
-      tap((response) => {
-        if (response.succeeded) {
-          // Store new tokens
-          this.tokenService.setAccessToken(response.data!.jwToken);
-          this.tokenService.setRefreshToken(response.data!.refreshToken);
-        } else {
-          // Handle error if refresh token is invalid
-          throwError(() => new Error(response.message));
-        }
-      }),
-      catchError((error) => {
-        // If the refresh token is expired or invalid, handle the error
-        if (error.status === 403 || error.status === 401) {
-          this.handleAuthError();
-        }
-        return throwError(() => new Error('Refresh token expired or invalid.'));
-      })
-    );
-  }
-
-  /**
-   * Clears tokens and redirects the user to the login page.
-   */
-  private handleAuthError(): void {
-    this.tokenService.removeAccessToken();
-    this.tokenService.removeRefreshToken();
-    this.router.navigate(['/login']);
-  }
+function handleAuthError(tokenService: TokenService, router: Router): void {
+  tokenService.removeAccessToken();
+  tokenService.removeRefreshToken();
+  router.navigate(['/login']);
 }
