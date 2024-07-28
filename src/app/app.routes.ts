@@ -8,7 +8,7 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'login',
     component: DefaultComponent,
     canActivate: [guestGuard],
     children: [{ path: '', component: LoginComponent }],
@@ -19,7 +19,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'todo', component: TodoComponent },
-      { path: '**', redirectTo: '/todo' },
+      { path: '**', redirectTo: 'todo' },
     ],
   },
 ];
