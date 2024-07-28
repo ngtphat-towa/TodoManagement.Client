@@ -16,7 +16,6 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
   const accountService = inject(AccountService);
   const router = inject(Router);
 
-  // Add authorization header to the request if access token is available
   const authReq = addAuthHeader(req, tokenService);
 
   return next(authReq).pipe(
@@ -42,11 +41,7 @@ function addAuthHeader(
 ): HttpRequest<any> {
   const token = tokenService.getAccessToken();
   if (token) {
-    return req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    return req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   }
   return req;
 }
@@ -65,9 +60,7 @@ function handleUnauthorizedError(
           switchMap(() => {
             const newToken = tokenService.getAccessToken();
             const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newToken || ''}`,
-              },
+              setHeaders: { Authorization: `Bearer ${newToken || ''}` },
             });
             return next(retryReq);
           }),
