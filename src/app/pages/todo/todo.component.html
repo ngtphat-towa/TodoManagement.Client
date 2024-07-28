@@ -8,7 +8,12 @@
   </div>
 
   <div *ngFor="let todo of todos" class="bg-white shadow mb-2">
-    <app-todo-card [todo]="todo"></app-todo-card>
+    <app-todo-card
+      [todo]="todo"
+      (edit)="onEdit($event)"
+      (delete)="onDelete($event)"
+      (toggleStatus)="onToggleStatus($event)">
+    </app-todo-card>
   </div>
 
   <!-- Pagination Controls -->

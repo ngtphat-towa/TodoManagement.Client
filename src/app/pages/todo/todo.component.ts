@@ -6,7 +6,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { PaginationComponent } from '../../shared/ui/pagination/pagination.component';
 import { SlidePanelComponent } from '../../shared/ui/slide-panel/slide-panel.component';
 import { TodoCardComponent } from '../../shared/components/todo-card/todo-card.component';
-import { CreateTodoRequest, ITodo, TodoStatusMapping, UpdateTodoRequest } from '../../core';
+import {
+  CreateTodoRequest,
+  ITodo,
+  TodoStatusMapping,
+  UpdateTodoRequest,
+} from '../../core';
 
 @Component({
   selector: 'app-todo',
@@ -79,6 +84,7 @@ export class TodoComponent implements OnInit {
     }
     this.isSlidePanelOpen = true;
   }
+
   onCloseSlidePanel(): void {
     this.isSlidePanelOpen = false;
   }
@@ -123,6 +129,7 @@ export class TodoComponent implements OnInit {
       }
     }
   }
+
   deleteTodo(id: number): void {
     this.todoService.deleteTodo(id).subscribe({
       next: (response) => {
@@ -133,5 +140,36 @@ export class TodoComponent implements OnInit {
         console.error('Error deleting todo:', err);
       },
     });
+  }
+
+  toggleStatus(todo: ITodo): void {
+    const updatedStatus =
+      (todo.status + 1) % Object.keys(this.todoStatus).length;
+    const updateRequest: UpdateTodoRequest = {
+      title: todo.title,
+      description: todo.description,
+      status: updatedStatus,
+    };
+    this.todoService.updateTodo(todo.id, updateRequest).subscribe({
+      next: (response) => {
+        console.log('Todo status updated:', response);
+        this.loadTodos(this.currentPage, this.pageSize);
+      },
+      error: (err) => {
+        console.error('Error updating todo status:', err);
+      },
+    });
+  }
+
+  onEdit(todo: ITodo): void {
+    this.openSlidePanel(todo);
+  }
+
+  onDelete(id: number): void {
+    this.deleteTodo(id);
+  }
+
+  onToggleStatus(todo: ITodo): void {
+    this.toggleStatus(todo);
   }
 }
