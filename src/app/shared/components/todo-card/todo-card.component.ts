@@ -1,13 +1,12 @@
-// todo-card.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Import CommonModule
+import { CommonModule } from '@angular/common';
 import { ITodo } from '../../../core';
-import { TodoStatus } from '../../../core/enums'; // Adjust import path
+import { TodoStatus } from '../../../core/enums';
 
 @Component({
   selector: 'app-todo-card',
   standalone: true,
-  imports: [CommonModule], // Add CommonModule here
+  imports: [CommonModule],
   templateUrl: './todo-card.component.html',
   styleUrls: ['./todo-card.component.scss'],
 })
@@ -15,6 +14,7 @@ export class TodoCardComponent {
   @Input() todo!: ITodo;
   @Output() edit = new EventEmitter<ITodo>();
   @Output() delete = new EventEmitter<number>();
+  @Output() toggleStatus = new EventEmitter<ITodo>();
 
   TodoStatus = TodoStatus;
 
@@ -34,14 +34,18 @@ export class TodoCardComponent {
         return '';
     }
   }
-  editTodo(todo: ITodo): void {
-    console.log('Button clicked, emitting edit event:', todo); // Debug line
-    this.edit.emit(todo);
+
+  editTodo(): void {
+    this.edit.emit(this.todo);
   }
 
-  confirmDelete(id: number): void {
+  confirmDelete(): void {
     if (confirm('Are you sure you want to delete this todo?')) {
-      this.delete.emit(id);
+      this.delete.emit(this.todo.id);
     }
+  }
+
+  onToggleStatus(): void {
+    this.toggleStatus.emit(this.todo);
   }
 }
