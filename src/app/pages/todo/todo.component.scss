@@ -1,0 +1,7 @@
+.btn-secondary {
+  @apply px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300;
+}
+
+.btn-secondary:disabled {
+  @apply cursor-not-allowed opacity-50;
+}
