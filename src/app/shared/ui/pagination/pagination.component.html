@@ -1,0 +1,36 @@
+<div class="pagination-container flex items-center justify-between">
+  <!-- Previous Button -->
+  <button
+    (click)="onPageChange(currentPage - 1)"
+    [disabled]="currentPage === 1"
+    class="pagination-button pagination-button-prev"
+  >
+    <i class="ri-arrow-left-s-line text-lg"></i>
+    <span class="sr-only">Previous</span>
+  </button>
+
+  <!-- Page Numbers -->
+  <div class="pagination-pages flex space-x-1">
+    <ng-container *ngFor="let page of pages">
+      <button
+        (click)="onPageChange(page)"
+        [ngClass]="{
+          'pagination-button': true,
+          'pagination-button-active': page === currentPage
+        }"
+      >
+        {{ page }}
+      </button>
+    </ng-container>
+  </div>
+
+  <!-- Next Button -->
+  <button
+    (click)="onPageChange(currentPage + 1)"
+    [disabled]="currentPage === totalPages"
+    class="pagination-button pagination-button-next"
+  >
+    <i class="ri-arrow-right-s-line text-lg"></i>
+    <span class="sr-only">Next</span>
+  </button>
+</div>
