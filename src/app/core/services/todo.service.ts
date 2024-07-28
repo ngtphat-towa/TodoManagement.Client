@@ -80,12 +80,17 @@ export class TodoService {
 
   updateTodo(
     id: number,
-    request: UpdateTodoRequest
-  ): Observable<ApiResponse<void>> {
-    return this.http.put<ApiResponse<void>>(
-      `${this.baseUrl}${API_ROUTES.TODOS}/${id}`,
-      request
-    );
+    updateTodoRequest: UpdateTodoRequest
+  ): Observable<ITodo> {
+    return this.http
+      .put<ApiResponse<TodoResponse>>(
+        `${this.baseUrl}${API_ROUTES.TODOS}/${id}`,
+        updateTodoRequest
+      )
+      .pipe(
+        map((response) => mapTodoResponseToITodo(response.data!)),
+        catchError(this.handleError<ITodo>('updateTodo'))
+      );
   }
 
   updateTodoStatus(
