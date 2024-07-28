@@ -1,0 +1,35 @@
+// Base styles for buttons
+.pagination-button {
+  @apply px-4 py-2 border border-gray-300 rounded-md text-gray-700;
+  @apply transition-colors duration-150 ease-in-out;
+
+  &:not(:disabled):hover {
+    @apply bg-gray-200;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+}
+
+// Specific styles for the previous and next buttons
+.pagination-button-prev {
+  @apply bg-gray-200 text-gray-600;
+}
+
+.pagination-button-next {
+  @apply bg-gray-200 text-gray-600;
+}
+
+// Styles for page number buttons
+.pagination-pages {
+  @apply flex items-center space-x-1;
+}
+
+.pagination-button-active {
+  @apply bg-blue-500 text-white border-blue-600;
+}
+
+.pagination-container {
+  @apply flex items-center justify-between;
+}

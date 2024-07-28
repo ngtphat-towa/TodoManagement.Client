@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { API_BASE_URL, API_ROUTES } from '../contants/api.constants';
 import {
   CreateTodoRequest,
   UpdateTodoRequest,
   UpdateTodoStatusRequest,
 } from '../contracts/todo/todo.request';
-import { TodoResponse } from '../contracts/todo/todo.response';
+import { mapTodoResponseToITodo, TodoResponse } from '../contracts/todo/todo.response';
 import { PagedResponse } from '../contracts/wrapper/paged-response.model';
 import { ApiResponse } from '../contracts/wrapper/response.model';
+import { ITodo } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -22,22 +23,36 @@ export class TodoService {
   getAllTodos(
     page: number = 1,
     pageSize: number = 10
-  ): Observable<PagedResponse<TodoResponse[]>> {
-    return this.http.get<PagedResponse<TodoResponse[]>>(
-      `${this.baseUrl}${API_ROUTES.TODOS}`,
-      {
-        params: {
-          page: page.toString(),
-          pageSize: pageSize.toString(),
-        },
-      }
-    );
+  ): Observable<PagedResponse<ITodo[]>> {
+    return this.http
+      .get<PagedResponse<TodoResponse[]>>(
+        `${this.baseUrl}${API_ROUTES.TODOS}`,
+        {
+          params: {
+            page: page.toString(),
+            pageSize: pageSize.toString(),
+          },
+        }
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: response.data!.map(mapTodoResponseToITodo),
+        }))
+      );
   }
 
-  getTodoById(id: number): Observable<ApiResponse<TodoResponse>> {
-    return this.http.get<ApiResponse<TodoResponse>>(
-      `${this.baseUrl}${API_ROUTES.TODOS}/${id}`
-    );
+  getTodoById(id: number): Observable<ApiResponse<ITodo>> {
+    return this.http
+      .get<ApiResponse<TodoResponse>>(
+        `${this.baseUrl}${API_ROUTES.TODOS}/${id}`
+      )
+      .pipe(
+        map((response) => ({
+          ...response,
+          data: mapTodoResponseToITodo(response.data!),
+        }))
+      );
   }
 
   createTodo(request: CreateTodoRequest): Observable<ApiResponse<number>> {

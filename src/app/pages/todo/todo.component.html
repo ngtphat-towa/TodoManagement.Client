@@ -1,1 +1,22 @@
-<p>todo works!</p>
+<div class="flex flex-col">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="font-bold text-xl">Manage Todo</h2>
+    <button class="btn btn-icon btn-round btn-primary">
+      <i class="ri-add-line ri-lg"></i>
+      Add todo
+    </button>
+  </div>
+
+  <div *ngFor="let todo of todos" class="bg-white shadow mb-2">
+    <app-todo-card [todo]="todo"></app-todo-card>
+  </div>
+
+  <!-- Pagination Controls -->
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    [pageSize]="pageSize"
+    [totalRecords]="totalRecords"
+    (pageChange)="onPageChange($event)">
+  </app-pagination>
+</div>

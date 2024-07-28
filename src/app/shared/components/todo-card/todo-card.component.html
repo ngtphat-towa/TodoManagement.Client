@@ -1,1 +1,45 @@
-<p>todo-card works!</p>
+<div class="flex justify-between gap-10 py-5 px-6 cursor-pointer hover:bg-gray-100 relative border-b border-gray-200">
+  <div class="border-l-4 pl-4"
+    [ngClass]="getBorderClass(todo.status)">
+    <h4 class="font-bold">{{todo.title}}</h4>
+    <p class="text-gray-400 h-6 overflow-hidden">{{todo.description}}</p>
+  </div>
+
+  <div>
+    <ng-container *ngIf="todo.status === TodoStatus.Opening">
+      <div class="bg-gray-100 border border-gray-500 text-gray-600 text-xs font-medium p-1 px-2 rounded-full">
+        {{ TodoStatus[TodoStatus.Opening] }}
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="todo.status === TodoStatus.Progressing">
+      <div class="bg-blue-100 border border-blue-500 text-blue-600 text-xs font-medium p-1 px-2 rounded-full">
+        {{ TodoStatus[TodoStatus.Progressing] }}
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="todo.status === TodoStatus.Testing">
+      <div class="bg-red-100 border border-red-500 text-red-600 text-xs font-medium p-1 px-2 rounded-full">
+        {{ TodoStatus[TodoStatus.Testing] }}
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="todo.status === TodoStatus.Done">
+      <div class="bg-green-100 border border-green-500 text-green-600 text-xs font-medium p-1 px-2 rounded-full">
+        {{ TodoStatus[TodoStatus.Done] }}
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="todo.status === TodoStatus.Rejected">
+      <div class="bg-yellow-100 border border-yellow-500 text-yellow-600 text-xs font-medium p-1 px-2 rounded-full">
+        {{ TodoStatus[TodoStatus.Rejected] }}
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!TodoStatus[todo.status]">
+      <div class="bg-gray-200 border border-gray-400 text-gray-600 text-xs font-medium p-1 px-2 rounded-full">
+        Unknown
+      </div>
+    </ng-container>
+  </div>
+</div>
