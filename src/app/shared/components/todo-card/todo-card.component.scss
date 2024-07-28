@@ -1,0 +1,16 @@
+/* Custom button styles */
+.btn {
+  @apply inline-flex items-center justify-center rounded-full p-2 border-none cursor-pointer transition-colors duration-300;
+}
+
+.btn-icon {
+  @apply text-base;
+}
+
+.btn-primary {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white hover:bg-red-600;
+}

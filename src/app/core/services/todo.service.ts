@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { API_BASE_URL, API_ROUTES } from '../contants/api.constants';
 import {
   CreateTodoRequest,
   UpdateTodoRequest,
   UpdateTodoStatusRequest,
 } from '../contracts/todo/todo.request';
-import { mapTodoResponseToITodo, TodoResponse } from '../contracts/todo/todo.response';
+import {
+  mapTodoResponseToITodo,
+  TodoResponse,
+} from '../contracts/todo/todo.response';
 import { PagedResponse } from '../contracts/wrapper/paged-response.model';
 import { ApiResponse } from '../contracts/wrapper/response.model';
 import { ITodo } from '../models';
@@ -38,8 +41,21 @@ export class TodoService {
         map((response) => ({
           ...response,
           data: response.data!.map(mapTodoResponseToITodo),
-        }))
+        })),
+        catchError(
+          this.handleError<PagedResponse<ITodo[]>>(
+            'getAllTodos',
+            {} as PagedResponse<ITodo[]>
+          )
+        )
       );
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
   }
 
   getTodoById(id: number): Observable<ApiResponse<ITodo>> {
@@ -64,12 +80,17 @@ export class TodoService {
 
   updateTodo(
     id: number,
-    request: UpdateTodoRequest
-  ): Observable<ApiResponse<void>> {
-    return this.http.put<ApiResponse<void>>(
-      `${this.baseUrl}${API_ROUTES.TODOS}/${id}`,
-      request
-    );
+    updateTodoRequest: UpdateTodoRequest
+  ): Observable<ITodo> {
+    return this.http
+      .put<ApiResponse<TodoResponse>>(
+        `${this.baseUrl}${API_ROUTES.TODOS}/${id}`,
+        updateTodoRequest
+      )
+      .pipe(
+        map((response) => mapTodoResponseToITodo(response.data!)),
+        catchError(this.handleError<ITodo>('updateTodo'))
+      );
   }
 
   updateTodoStatus(

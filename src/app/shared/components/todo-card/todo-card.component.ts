@@ -1,5 +1,5 @@
 // todo-card.component.ts
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { ITodo } from '../../../core';
 import { TodoStatus } from '../../../core/enums'; // Adjust import path
@@ -13,8 +13,10 @@ import { TodoStatus } from '../../../core/enums'; // Adjust import path
 })
 export class TodoCardComponent {
   @Input() todo!: ITodo;
+  @Output() edit = new EventEmitter<ITodo>();
+  @Output() delete = new EventEmitter<number>();
 
-  TodoStatus = TodoStatus; // Expose enum to the template
+  TodoStatus = TodoStatus;
 
   getBorderClass(status: TodoStatus): string {
     switch (status) {
@@ -30,6 +32,16 @@ export class TodoCardComponent {
         return 'border-yellow-300';
       default:
         return '';
+    }
+  }
+  editTodo(todo: ITodo): void {
+    console.log('Button clicked, emitting edit event:', todo); // Debug line
+    this.edit.emit(todo);
+  }
+
+  confirmDelete(id: number): void {
+    if (confirm('Are you sure you want to delete this todo?')) {
+      this.delete.emit(id);
     }
   }
 }
