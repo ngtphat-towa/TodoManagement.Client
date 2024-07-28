@@ -10,11 +10,9 @@ export const authGuard: CanActivateFn = () => {
   return tokenService.authState$.pipe(
     map((isLoggedIn) => {
       if (isLoggedIn) {
-        console.log('AuthGuard: Token exists, user is authenticated');
         return true;
       } else {
-        console.log('AuthGuard: Token does not exist, redirecting to login');
-        router.navigate(['/']);
+        router.navigate(['/login']);
         return false;
       }
     })

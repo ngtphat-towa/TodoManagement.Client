@@ -10,13 +10,10 @@ export const guestGuard: CanActivateFn = () => {
   return tokenService.authState$.pipe(
     map((isLoggedIn) => {
       if (isLoggedIn) {
-        console.log('GuestGuard: User is authenticated, redirecting to todo');
         router.navigate(['/todo']);
         return false;
-      } else {
-        console.log('GuestGuard: User is not authenticated, allowing access');
-        return true;
       }
+      return true;
     })
   );
 };

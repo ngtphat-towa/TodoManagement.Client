@@ -2,7 +2,8 @@
   <div class="container flex items-center justify-between">
     <h4 class="font-bold text-xl">Todo Management</h4>
     <div class="flex gap-3">
-      <div class="px-2 font-medium cursor-pointer">Login</div>
+      <div *ngIf="!isLoggedIn" class="px-2 font-medium cursor-pointer" (click)="navigateToLogin()">Login</div>
+      <div *ngIf="isLoggedIn" class="px-2 font-medium cursor-pointer" (click)="logout()">Logout</div>
     </div>
   </div>
 </header>
