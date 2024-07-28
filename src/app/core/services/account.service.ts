@@ -94,13 +94,27 @@ export class AccountService {
   }
 
   logout(): Observable<ApiResponse<string>> {
+    // Optionally, handle server-side logout (invalidate tokens)
     return this.http
       .post<ApiResponse<string>>(
         `${this.baseUrl}${API_ROUTES.LOGOUT}`,
         {},
         this.httpOptions
       )
-      .pipe(catchError((error) => this.handleError(error)));
+      .pipe(
+        switchMap((response) => {
+          // Regardless of server-side response, clear local tokens
+          this.tokenService.removeAccessToken();
+          this.tokenService.removeRefreshToken();
+          return of(response);
+        }),
+        catchError((error) => {
+          // Clear tokens even if server-side logout fails
+          this.tokenService.removeAccessToken();
+          this.tokenService.removeRefreshToken();
+          return this.handleError(error);
+        })
+      );
   }
 
   refreshToken(token: string): Observable<ApiResponse<AuthenticationResponse>> {
